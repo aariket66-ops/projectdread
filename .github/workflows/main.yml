@@ -22,14 +22,19 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Find Project and Build
+    - name: Fix Plugin Version & Build Mod
       run: |
         TARGET_DIR=$(dirname $(find . -name "build.gradle" | head -n 1))
         echo "Found project in directory: $TARGET_DIR"
         cd "$TARGET_DIR"
-        gradle wrapper
+        
+        # Fix version typo in build.gradle
+        sed -i "s/2.0.75-beta/2.0.75/g" build.gradle
+        
+        # Generate wrapper for Gradle 8.10.2 (compatible with NeoForge 1.21.1)
+        gradle wrapper --gradle-version 8.10.2
         chmod +x gradlew
-        ./gradlew build
+        ./gradlew build --no-daemon
 
     - name: Upload Compiled Jar
       uses: actions/upload-artifact@v4
