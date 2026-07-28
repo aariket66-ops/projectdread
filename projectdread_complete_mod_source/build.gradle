@@ -1,0 +1,82 @@
+// Project Dread - NeoForge 1.21.1 Gradle Build Configuration
+plugins {
+    id 'java-library'
+    id 'eclipse'
+    id 'idea'
+    id 'net.neoforged.moddev' version '2.0.75-beta'
+}
+
+tasks.named('wrapper', Wrapper) {
+    distributionType = Wrapper.DistributionType.BIN
+}
+
+version = mod_version
+group = mod_group_id
+
+repositories {
+    mavenCentral()
+}
+
+base {
+    archivesName = mod_id
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+neoForge {
+    version = neoforge_version
+
+    parchment {
+        mappingsVersion = parchment_mappings_version
+        minecraftVersion = parchment_minecraft_version
+    }
+
+    runs {
+        client {
+            client()
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+
+        server {
+            server()
+            programArgument '--nogui'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+
+        gameTestServer {
+            type = "gameTestServer"
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
+        }
+
+        data {
+            data()
+            programArguments.addAll '--mod', mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet(sourceSets.main)
+        }
+    }
+}
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
+dependencies {
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.withType(ProcessResources).configureEach {
+    inputs.property 'version', version
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand 'version': version
+    }
+}

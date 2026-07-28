@@ -1,0 +1,41 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+issueTrackerURL="https://github.com/projectdread/projectdread/issues"
+license="MIT"
+
+[[mods]]
+modId="projectdread"
+version="${file.jarVersion}"
+displayName="Project Dread"
+updateJSONURL="https://raw.githubusercontent.com/projectdread/projectdread/main/update.json"
+displayURL="https://github.com/projectdread/projectdread"
+logoFile="projectdread.png"
+credits="Created for extreme psychological horror gameplay."
+authors="DevTeam"
+description='''
+Project Dread is an extreme NeoForge 1.21.1 horror mod.
+Features include:
+- First-launch risk acknowledgment GUI
+- Daily time-based escalation engine (Days 1 to 30+)
+- HUD static shaders and simulated Windows error overlays
+- Graceful chunk-saving OS Reboot handler
+- Extensible base entity framework for 30+ stalker mobs
+- Admin / Dev command (/devmode LETSHAVEFUN)
+'''
+
+[[mixins]]
+config="projectdread.mixins.json"
+
+[[dependencies.projectdread]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.0,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.projectdread]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1]"
+    ordering="NONE"
+    side="BOTH"
