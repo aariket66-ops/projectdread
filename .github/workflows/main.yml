@@ -22,16 +22,19 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Fix Plugin Version & Build Mod
+    - name: Fix Configuration & Build Mod
       run: |
         TARGET_DIR=$(dirname $(find . -name "build.gradle" | head -n 1))
         echo "Found project in directory: $TARGET_DIR"
         cd "$TARGET_DIR"
         
-        # Fix version typo in build.gradle
+        # 1. Fix plugin version typo
         sed -i "s/2.0.75-beta/2.0.75/g" build.gradle
         
-        # Generate wrapper for Gradle 8.10.2 (compatible with NeoForge 1.21.1)
+        # 2. Remove Parchment mappings block to fallback to official Mojang Mappings
+        python3 -c "import re; p=open('build.gradle').read(); p=re.sub(r'parchment\s*\{[^}]*\}', '', p); open('build.gradle','w').write(p)"
+        
+        # 3. Generate wrapper for Gradle 8.10.2 and compile
         gradle wrapper --gradle-version 8.10.2
         chmod +x gradlew
         ./gradlew build --no-daemon
