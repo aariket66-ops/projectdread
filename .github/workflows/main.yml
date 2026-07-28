@@ -22,7 +22,7 @@ jobs:
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v3
 
-    - name: Fix Configuration & Build Mod
+    - name: Fix Code & Build Mod
       run: |
         TARGET_DIR=$(dirname $(find . -name "build.gradle" | head -n 1))
         echo "Found project in directory: $TARGET_DIR"
@@ -31,10 +31,22 @@ jobs:
         # 1. Fix plugin version typo
         sed -i "s/2.0.75-beta/2.0.75/g" build.gradle
         
-        # 2. Remove Parchment mappings block to fallback to official Mojang Mappings
+        # 2. Remove Parchment mappings block
         python3 -c "import re; p=open('build.gradle').read(); p=re.sub(r'parchment\s*\{[^}]*\}', '', p); open('build.gradle','w').write(p)"
         
-        # 3. Generate wrapper for Gradle 8.10.2 and compile
+        # 3. Fix NeoForge 1.21.1 DeltaTracker error in GlitchHudOverlay.java
+        python3 -c "
+        import os, re
+        for root, dirs, files in os.walk('.'):
+            for f in files:
+                if f == 'GlitchHudOverlay.java':
+                    filepath = os.path.join(root, f)
+                    c = open(filepath).read()
+                    c = re.sub(r'int width = event\.getPartialTick\(\)[^;]+;', 'int width = guiGraphics.guiWidth();', c)
+                    open(filepath, 'w').write(c)
+        "
+        
+        # 4. Generate wrapper for Gradle 8.10.2 and compile
         gradle wrapper --gradle-version 8.10.2
         chmod +x gradlew
         ./gradlew build --no-daemon
